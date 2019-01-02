@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--使用注解完成配置-->
+    <context:component-scan base-package="com.neuedu.shop.pojo"/>
+    <context:component-scan base-package="com.neuedu.shop.mapper"/>
+    <context:component-scan base-package="com.neuedu.shop.service"/>
+    <context:component-scan base-package="com.neuedu.shop.service.impl"/>
+
+    <!--<context:property-placeholder location="classpath:database.properties" />-->
+    <!--加载properties文件-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="database.properties"></property>
+    </bean>
+    <!--配置数据库连接   创建数据库连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="${url}"/>
+        <property name="username" value="${username}" />
+        <property name="password" value="${password}" />
+    </bean>
+
+    <!--创建sqlSessionFactory   Mybatis文件-->
+    <!--SqlSessionFactoryBean来替代SqlSessionFactoryBuilder来创建SqlSession-->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 配置数据库表对应的java实体类 -->
+        <property name="typeAliasesPackage" value="com.neuedu.shop.pojo" />
+        <property name="mapperLocations" value="classpath*:mapper/*.xml"/>
+    </bean>
+
+    <!--配置扫描包的扫描器-->
+    <!--这段配置会扫描org.mybatis.spring.sample.mapper下的所有接口，然后创建各自接口的动态代理类-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
+        <property name="basePackage" value="com.neuedu.shop.mapper"/>
+    </bean>
+</beans>
